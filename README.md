@@ -1,10 +1,12 @@
 # Multiple GPU's in Keras
 
+**The article is still work in progress**
+
 Using a GPU instead of a CPU can really speed things up. An NVidia 1080Ti is in some of my benchmarks more than 60 times(!) faster than an AMD 1950X. And several articles [(here is one)](https://medium.com/@iliakarmanov/multi-gpu-rosetta-stone-d4fa96162986) hinted at extra speedups when using multiple GPU's. How much faster a multi GPU setup performs depends on the deep learning net that is being trained. I decided to try it out and I bought a seconds 1080Ti to my existing one. 
 
 Testing the impact of multiple GPU's on my Keras RNN models. File rnn_demo.py contains the most simplified model I could think of now. I added some small data file in order to test it. File rnn_demo_plot.py plots the effect of single and and multi GPU runs. The results of one succesful run (ok.csv) are included. I got quite some issues with running multi GPU models. They are described below
 
-## How to test GPU's present in your system
+## How to test GPU's presence in the system
 Tensorflow has function [`list_devices`](https://www.tensorflow.org/api_docs/python/tf/Session) to list which computing devices are present in your system. It lists All CPU's, GPU's and TPU's, so one has to filter the relevant devices. 
 ```
     print('Tensorflow version: ' + tf.__version__)
@@ -51,7 +53,7 @@ In my models I usually prefer GRU over LSTM. In my models it is faster and has b
 
 ### CuDNN layers
 I noticed some new layers, specifically for CuDNN: CuDNNGRU and CuDNNLSTM. They only work with the CuDNN library. They have two pleasant properties in my case:
-- they really speedup the models, sometimes even by a factor 2, though by about 1.15 is more usual.
+- they really speedup the models, sometimes even by a factor 2, though by about 1.25 is usual.
 - they can be parallised in the newest versions of Tensorflow and Keras.
 
 The big question for me of course was whether they are faster by the use of 2 GPU's.
@@ -63,6 +65,9 @@ The big question for me of course was whether they are faster by the use of 2 GP
 |1|5|512|0.49|0.50|27|0.48|0.50|22
 |1|5|1024|0.43|0.41|26|0.43|0.41|17
 
+There is break even at a batch size of 256 and after that it increases. 
+
+**Work in progress**
 
 ## Test system
 Hardware:
