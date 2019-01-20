@@ -1,7 +1,10 @@
 # multi_gpu
-Testing the impact of multiple GPU's on my RNN models. File rnn_demo.py contains the most simplified model I could think of now. I added some small data file in order to test it. File rnn_demo_plot.py plots the effect of single and and multi GPU runs. The results of one succesful run (ok.csv) are included.
+Testing the impact of multiple GPU's on my Keras RNN models. File rnn_demo.py contains the most simplified model I could think of now. I added some small data file in order to test it. File rnn_demo_plot.py plots the effect of single and and multi GPU runs. The results of one succesful run (ok.csv) are included. I got quite some issues with running multi GPU models. They are described below
 
-## Environment
+## Issues with multi GPU
+### 
+
+## My test system
 Hardware:
 - AMD 1950X
 - 96GB RAM
