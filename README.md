@@ -4,6 +4,8 @@
 
 Using a GPU instead of a CPU can really speed things up. An NVidia 1080Ti is in some of my benchmarks more than 60 times(!) faster than an AMD 1950X. And several articles [(here is one)](https://medium.com/@iliakarmanov/multi-gpu-rosetta-stone-d4fa96162986) hinted at extra speedups when using multiple GPU's. How much faster a multi GPU setup performs depends on the deep learning net that is being trained. I decided to try it out and I bought a second 1080Ti to my existing one. 
 
+I am aware that the results of using multiple GPU's depends on the task at hand. The reason publishing these (intermediate) results is that I don't know exactly what tasks impact in what way. Results I publish here are specific to my problem, fitting a lot of sequences with a Recurrent Neural Network (RNN). I am 
+
 ## How to test GPU's presence in the system
 Tensorflow has the function [`list_devices`](https://www.tensorflow.org/api_docs/python/tf/Session) to list which computing devices are present in your system. It lists all CPU's, GPU's and TPU's, so one has to filter out the relevant devices. 
 ```
@@ -85,7 +87,9 @@ The big question for me of course was whether they are faster by the use of 2 GP
 |1|5|512|0.49|0.50|27|0.48|0.50|22|1.23
 |1|5|1024|0.43|0.41|26|0.43|0.41|17|1.53
 
-I noticed no differences between Tensorflow/Keras 1.9/2.2.2 and 1.12/2.2.4: the results were identical within the first two decimals. 
+I noticed no differences between Tensorflow/Keras 1.9/2.2.2 and 1.12/2.2.4: the results were identical within the first two decimals. an image of these results is shown below.
+
+![Accuracy and time for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results.png)
 
 There is break even for accuracy at a batch size of 256 and after that it increases. 
 
