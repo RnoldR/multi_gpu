@@ -1,6 +1,6 @@
 # Multiple GPU's in Keras
 
-**The article is still work in progress**
+**The article is not yet finished**
 
 Using a GPU instead of a CPU can really speed things up. An NVidia 1080Ti is in some of my benchmarks more than 60 times(!) faster than an AMD 1950X. And several articles [(here is one)](https://medium.com/@iliakarmanov/multi-gpu-rosetta-stone-d4fa96162986) hinted at extra speedups when using multiple GPU's. How much faster a multi GPU setup performs depends on the deep learning net that is being trained. I decided to try it out and I bought a seconds 1080Ti to my existing one. 
 
