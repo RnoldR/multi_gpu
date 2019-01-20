@@ -87,7 +87,7 @@ The big question for me of course was whether they are faster by the use of 2 GP
 |1|5|512|0.49|0.50|27|0.48|0.50|22|1.23
 |1|5|1024|0.43|0.41|26|0.43|0.41|17|1.53
 
-I noticed no differences between Tensorflow/Keras 1.9/2.2.2 and 1.12/2.2.4: the results were identical within the first two decimals. an image of these results is shown below.
+I noticed no differences between Tensorflow/Keras 1.9/2.2.2 and 1.12/2.2.4: the results were identical within the first two decimals. An image of these results is shown below.
 
 ![Accuracy and time for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results.png)
 
