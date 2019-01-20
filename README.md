@@ -49,13 +49,32 @@ As you can see keras makes it very easy to create multi GPU models. Trouble is t
 As you can see the reult is somewhat disappointing. In all cases the use of two GPU's slows down the process and about halves the accuracy. That's where I started to experiment to try to figure out what exactly happens when using multiple GPU's.
 
 ## Issues with multi GPU
+
 ### Sensitivity for version
 I usually prefer GRU over LSTM. It tends to be faster and has better performance in terms of (validation) accuracy. The table listed above was produced by tensorflow 1.9 and Keras 2.2.2. When I tried to use Tensorflow/Keras 1.10/2.2.2 and 1.12/2.2.4 the system crashed without warning when I used 2 GPU's (it worked for 1 GPU). 
 
-### CuDNN layers
+### Version and layers that were compatible
 In Keras there are RNN layers specific for the CuDNN library: CuDNNGRU and CuDNNLSTM. They only work with the CuDNN library. They have two pleasant properties:
 - they really speedup the models, sometimes by even a factor 2, though by about 1.25 is more usual.
 - they can be parallised in the newest versions of Tensorflow and Keras.
+
+I wanted to know if they were more compatible with newer version of Tensorflow and Keras. Itested several combinations of layers and installed packages. That yielded the following results:
+
+|Package/Layer|Combi 1|Combi 2|Combi 3
+|---|---:|---:|---:|
+|Tensorflow|1.9|1.1|1.12
+|Keras|2.2.2|2.2.2|2.2.4
+|Pyton|3.5.6|3.6.8|3.6.7
+|GRU|O|X|X
+|LSTM|X|X|X
+|CuDNNGRU|O|?|O
+|CuDNNLSTM|O|?|O
+
+O = Ok, X = system hangs, ? = not tested
+
+So for benchmarking I decided to use CuDNNGRU with my production systen: Tensorflow 1.9 and Keras 2.2.2.
+
+### CuDNN layers
 
 The big question for me of course was whether they are faster by the use of 2 GPU's.
 
