@@ -90,7 +90,7 @@ I noticed no differences between Tensorflow/Keras 1.9/2.2.2 and 1.12/2.2.4: the 
 
 As you can see the reult is somewhat disappointing. There is break even for accuracy at a batch size of 256 and after that it increases. 
 
-![Accuracy and time for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results.png)
+<!--![Accuracy and time for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results.png)-->
 
 
 
