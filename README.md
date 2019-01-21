@@ -91,7 +91,17 @@ Epochs|Model type|Dropouts|Batch size|GPU's|Acc|Val. Acc|Time|Speed up|
 
 As you can see the result is somewhat disappointing. There is break even for accuracy at a batch size of 256 and after that it increases. 
 
-![Accuracy and time for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results.png)
+![Accuracy for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results-accuracy.png)
+
+
+
+![Validation accuracy for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results-val-accuracy.png)
+
+
+
+![Time for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results-time.png)
+
+
 
 
 
