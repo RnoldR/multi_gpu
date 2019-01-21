@@ -10,6 +10,7 @@ import h5py
 import random
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 import keras
 from keras.layers import Dense
 from keras.layers import Dropout
@@ -21,54 +22,8 @@ import tensorflow as tf
 
 LayerType = CuDNNLSTM
 
-def read_sequences(filename, x_only=False):
-    idx_train, idx_val, idx_test = None, None, None
-    with h5py.File(filename, mode='r') as hdf5_file:
-        X_train = list(hdf5_file["X_train"][:])
-        idx_train = hdf5_file['X_train'].attrs['Index']
-
-        try:
-            X_val = list(hdf5_file["X_val"][:])
-            idx_val = hdf5_file['X_val'].attrs['Index']
-        except:
-            X_val = None
-
-        try:
-            X_test = list(hdf5_file["X_test"][:])
-            idx_train = hdf5_file['X_test'].attrs['Index']
-        except:
-            X_test = None
-
-    data = [X_train, X_val, X_test], [idx_train, idx_val, idx_test]
-
-    return data
-
-def create_y_from_x(X):
-    if X is not None:
-        if isinstance(X, list):
-            Y = [x[:, -1:, :] for x in X]
-            X = [x[:, :-1, :] for x in X]
-        else:
-            Y = X[:, -1:, :]
-            X = X[:, :-1, :]
-
-        return X, Y
-
-    return None, None
-
-def reshape_y(Y):
-    if Y is not None:
-        if isinstance(Y, list):
-            Y = [y.reshape((y.shape[0], y.shape[2])) for y in Y]
-        else:
-            Y = Y.reshape((Y.shape[0], Y.shape[2]))
-
-        return Y
-
-    return None
-
 def ohe(matrix, n):
-    cube = np.zeros((matrix.shape[0], matrix.shape[1], n))
+    cube = np.zeros((matrix.shape[0], matrix.shape[1], n), dtype=np.int)
 
     for row in range(matrix.shape[0]):
         for col in range(matrix.shape[1]):
@@ -76,12 +31,7 @@ def ohe(matrix, n):
 
     return cube
 
-def ohe_data(data):
-    results = [ohe(matrix, 128) for matrix in data]
-
-    return results
-
-class MusicTrainer():
+class SequenceTrainer():
     def get_par (self, pars, keys, default):
         try:
             p = pars
@@ -92,33 +42,7 @@ class MusicTrainer():
         except:
             return default
 
-    def get_notes(self, note_file, note_saves, selection, verbose, min_length):
-        with open(note_file, 'r') as infile:
-            preparations = json.load(infile)
-
-        pitches = []
-        durations = []
-
-        for piece, features in preparations.items():
-            if verbose != 0: print(piece)
-            for feature, voices in features.items():
-                if verbose != 0: print ('  +', feature)
-                for voice, values in voices.items():
-                    if voice in selection or selection == ['*']:
-                        if feature == 'pitches' and len(values) > min_length:
-                            pitches.append(values)
-                        elif feature == 'durations'and len(values) > min_length:
-                            durations.append(values)
-
-                        flag = '*'
-                    else:
-                        flag = ''
-
-                    if verbose != 0: print ('    -', voice, flag)
-
-        return pitches, durations
-
-    def prepare_data(self, model_def, data, split):
+    def prepare_data(self, data, split):
         """
         The original input consists of a list of 5 matrices of sequence
         data (X) and a list of 5 matrices as target (Y)
@@ -126,38 +50,26 @@ class MusicTrainer():
         Y[i].shape = (n, # of categories)
 
          Args:
-             model_def (string): definition of the model
              data (list): list of X/Y_train, X/Y_val and X/Y_test
              split (list): List containing training fraction and validation fraction
 
         Returns:
             Four arrays: X_train, Y_train, X_val, Y_val
         """
-        model_type = model_def['model']
-        X_train, X_val = None, None
-        X_train = ohe_data(data[0])
-        if data[1] is not None:
-            X_val = ohe_data(data[1])
+        # Create one hot encoded vectors
+        train_data = ohe(data[0], 128)
+        val_data = ohe(data[1], 128)
 
         # Be sure that Y follows an X sequence
-        X_train, Y_train = create_y_from_x(X_train)
-        X_val, Y_val = create_y_from_x(X_val)
+        X_train = train_data[:, :-1, :]
+        Y_train = train_data[:, -1:, :]
+
+        X_val = val_data[:, :-1, :]
+        Y_val = val_data[:, -1:, :]
 
         # Remove 2nd index from Y, which is one
-        Y_train = reshape_y(Y_train)
-        Y_val = reshape_y(Y_val)
-
-        if model_type == 'single':
-            index = 0
-            X_train, Y_train = [X_train[index]], [Y_train[index]]
-            X_val, Y_val = [X_val[index]], [Y_val[index]]
-            print('*** Training on:', index)
-        elif (model_type == 'pipeline'):
-            # input and output already provided for
-            pass
-        else:
-            # some error occurred, return None
-            raise ValueError('Unknown model type: ' + model_type)
+        Y_train = Y_train.reshape((Y_train.shape[0], Y_train.shape[2]))
+        Y_val = Y_val.reshape((Y_val.shape[0], Y_val.shape[2]))
 
         return X_train, X_val, Y_train, Y_val
 
@@ -178,8 +90,8 @@ class MusicTrainer():
         Returns:
             The model
         """
-        rnn_layers = [512, 512, 512, 512] #layers[0]
-        dense_layers = [512] #layers[1]
+        rnn_layers = layers[0]
+        dense_layers = layers[1]
 
         # In this test using the kernel regularizer = weight decay
         l2k = self.l2k # Weights regularizer
@@ -187,7 +99,7 @@ class MusicTrainer():
         l2r = self.l2r # self.l2r # recurrent regularizer
         print ('*** l2k =', l2k, 'l2a =', l2a, 'l2r =', l2r)
 
-        input_layer = Input(shape=(X[0].shape[1], X[0].shape[2]), name='Input_Layer')
+        input_layer = Input(shape=(X.shape[1], X.shape[2]), name='Input_Layer')
 
         if len(rnn_layers) == 1:
             model = LayerType(rnn_layers[0],
@@ -229,7 +141,7 @@ class MusicTrainer():
             if dropout > 0:
                 model = Dropout(dropout)(model)
 
-        model = Dense(Y[0].shape[1], activation='softmax', name='Dense_softmax')(model)
+        model = Dense(Y.shape[1], activation='softmax', name='Dense_softmax')(model)
 
         main_model = Model(inputs=input_layer, outputs=[model])
 
@@ -258,7 +170,7 @@ class MusicTrainer():
                 print('Running a multi GPU model on a', model_type, 'model')
         else:
             with tf.device("/gpu:0"):
-                model = self.single_input_model(model_type, X, Y, layers, dropout)
+                model = self.single_input_model(X, Y, layers, dropout)
                 print('Running a single GPU model on a', model_type, 'model')
 
         model.compile(optimizer=keras.optimizers.Adam (),
@@ -267,20 +179,22 @@ class MusicTrainer():
 
         return model
 
-    def train(self, hp, model_def, data, indices, dropout, batch_size,
+    def train(self, hp, model_def, data, dropout, batch_size,
               epochs, gpu):
 
         hp = dict(hp)
-        split = self.get_par(hp, ['validation_proportion'], 0.25)
+        split = 0.8
         hp['batch_sizes'] = [batch_size]
         hp['dropouts'] = [dropout]
 
-        X_train, X_val, Y_train, Y_val = self.prepare_data(model_def, data, split)
-        print('Number of training sequences:', len(X_train[0]))
-        print('Number of validation sequences:', len(X_val[0]))
-        print('Length of sequences is', data[0][0].shape[1])
+        X_train, X_val, Y_train, Y_val = self.prepare_data(data, split)
+        print('X shape', X_train.shape)
+        print('Number of training sequences:', len(X_train))
+        print('Number of validation sequences:', len(X_val))
+        print('Length of sequences is', X_train.shape[1])
 
         model = self.setup_model(model_def, X_train, Y_train, dropout, gpu)
+        model.summary()
 
         print('\nStarted training the model')
         print('Batch size:', batch_size)
@@ -295,7 +209,7 @@ class MusicTrainer():
 
         return history
 
-    def train_music(self, hyper_pars, notes_file):
+    def train_sequence(self, hyper_pars, notes_file):
         self.hyper_pars = hyper_pars
 
         model_types = self.get_par(hyper_pars, ['models'], None)
@@ -306,7 +220,13 @@ class MusicTrainer():
 
         print('Tensorflow version:', tf.__version__)
         print('Keras version:', keras.__version__)
-        data, indices = read_sequences(notes_file)
+
+        #data = read_sequences(notes_file)
+        #self.stf(data)
+        #sys.exit()
+        train_data = np.genfromtxt('train.csv', delimiter=',', dtype=np.int)
+        val_data = np.genfromtxt('val.csv', delimiter=',', dtype=np.int)
+
         n_runs = len(model_types) * len(dropouts) * len(batch_sizes) * \
                  len(gpus)
         columns = ['Epochs', 'Model type', 'Dropouts', 'Batch size', 'GPU\'s',
@@ -331,7 +251,8 @@ class MusicTrainer():
 
                         model_time = time.time()
 
-                        history = self.train(hyper_pars, model_def, data, indices,
+                        history = self.train(hyper_pars, model_def,
+                                             (train_data, val_data),
                                    dropout, batch_size, epochs, gpu)
                         model_time = time.time() - model_time
                         print('CPU time: {:.0f}'.format(model_time))
@@ -340,15 +261,14 @@ class MusicTrainer():
                         df.iloc[run_no]['Acc'] = hist['acc'][-1]
                         df.iloc[run_no]['Val. Acc'] = hist['val_acc'][-1]
                         df.iloc[run_no]['Time'] = int(model_time)
+                        df.to_csv('results.csv')
+                        print(df)
 
                         run_no += 1
                     # for
                 # for
             # for
         # for
-
-        print(df)
-        df.to_csv('results.csv')
 
         return
 
@@ -370,7 +290,7 @@ def main(argv):
     # Initialize CPU time measurement
     seconds = time.time()
 
-    MusicTrainer().train_music(hyper_pars, notes_file)
+    SequenceTrainer().train_sequence(hyper_pars, notes_file)
 
     seconds = int(time.time() - seconds + 0.5)
 
@@ -378,5 +298,4 @@ def main(argv):
 
 if __name__ == '__main__':
     pd.set_option('display.max_columns', None)
-    np.set_printoptions(threshold=np.nan)
     main(sys.argv[1:])
