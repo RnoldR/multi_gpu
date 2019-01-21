@@ -41,12 +41,19 @@ If you want to use the GPU's then the typical way to proceed is as follows:
 ```
 As you can see keras makes it very easy to create multi GPU models. Trouble is that in my case multiple GPU's seem to slow down instead of speed up the training of an LSTM or GRU network. And I can't figure out what is the cause of that. As an example I use a model that contains 4 GRU layers of 512 units each and a Dense layer of 128 units. The results can be found in the table below where I have tested the accuracy and time to run the model 5 times for 1 GPU (1) and two GPU's (2).
 
-|Epochs|Batch size|acc (1)|val_acc (1)|Time (1)|acc (2)|val_acc (2)|Time (2)|
-|---|---:|---:|---:|---:|---:|---:|---:|
-|5|128|0.51|0.45|153|0.21|0.27|490|
-|5|256|0.51|0.49|83|0.21|0.27|261|
-|5|512|0.48|0.49|65|0.17|0.20|150|
-|5|1024|0.43|0.42|50|0.21|0.23|88|
+
+|Epochs|Model type|Dropouts|Batch size|GPU's|Acc|Val. Acc|Time|Speedup|
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+|15|2|0|64|1|0.22|0.27|195||
+|15|2|0|64|2|0.22|0.27|287|0.49|
+|15|2|0|128|1|0.64|0.48|142||
+|15|2|0|128|2|0.34|0.31|175|0.70|
+|15|2|0|256|1|0.22|0.27|122||
+|15|2|0|256|2|0.51|0.49|112|0.96|
+|15|2|0|512|1|0.52|0.43|108||
+|15|2|0|512|2|0.51|0.45|86|1.16|
+|15|2|0|1024|1|0.41|0.37|100||
+|15|2|0|1024|2|0.30|0.32|73|0.00|
 
 As you can see the reult is somewhat disappointing. In all cases the use of two GPU's slows down the process and about halves the accuracy. That's where I started to experiment to try to figure out what exactly happens when using multiple GPU's.
 
