@@ -100,11 +100,11 @@ As you can see the larger the batch size, the faster the multiple GPU solution i
 
 There is a decreasing accuracy when using larger batch sizes as is to be expected. But there is hardly any difference between 1 and 2 GPU's. 
 
-![Accuracy for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results-accuracy.png)
+![Accuracy for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results-acc.png)
 
-Picture is a bit different for the validation accuracy. For smaller batch sizes the validation accuracy for 2 GPU's is much higher compared to 1 GPU but it decreases much faster. 
+Picture is a bit different for the validation accuracy. With increasing batch size the validation accuracy increases. Actually the mode overfits less.
 
-![Validation accuracy for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results-val-accuracy.png)
+![Validation accuracy for 1 and 2 CPU's plotted against batch size](https://raw.githubusercontent.com/RnoldR/multi_gpu/master/results-val_acc.png)
 
 Maybe this is an example of the law of preservation of misery. What you win in one indicator (time when batch size is large) you lose in another indicator (validation accuracy).
 
