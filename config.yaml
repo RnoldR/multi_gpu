@@ -1,11 +1,11 @@
 # Training parameters
 model_single: {'model': 'single',
-               'layers': [[1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024], [512]]}
+               'layers': [[1024, 1024, 1024, 1024], [512]]}
 
 models: [model_single]
 
 epochs: 15
-batch_sizes: [256]#[64, 128, 256, 512, 1024]
+batch_sizes: [128, 256, 512, 1024]
 dropouts: [0] #0.0, 0.12, 0.25, 0.35]
-gpus: [2, 1]
+gpus: [1]
 

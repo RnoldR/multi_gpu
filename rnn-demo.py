@@ -20,7 +20,7 @@ from keras.utils import multi_gpu_model
 from keras.models import Model
 import tensorflow as tf
 
-LayerType = CuDNNLSTM
+LayerType = CuDNNGRU
 
 def ohe(matrix, n):
     cube = np.zeros((matrix.shape[0], matrix.shape[1], n), dtype=np.int)
