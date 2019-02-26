@@ -56,6 +56,7 @@ In Keras there are RNN layers specific for the CuDNN library: CuDNNGRU and CuDNN
 I wanted to know if they were more compatible with newer version of Tensorflow and Keras. I tested several combinations of layers and installed packages, see below.
 
 *Tabel 1. Version and working layer types on 2 GPU's.*
+
 |Package/Layer|Combi 1|Combi 2|Combi 3
 |---|---:|---:|---:|
 |Tensorflow|1.9|1.1|1.12
